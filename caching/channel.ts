@@ -2,7 +2,7 @@ import { BaseChannel, TextChannel } from 'djs/structures';
 import { BaseCache } from './base';
 import Client from 'djs/client';
 import { RawChannel, Routes } from 'djs/types';
-import { ChannelType } from 'djs/types/channel';
+import { Channels, ChannelType } from 'djs/types/channel';
 
 class ChannelCache extends BaseCache<string, BaseChannel> {
   constructor(client: Client) {
@@ -22,6 +22,16 @@ class ChannelCache extends BaseCache<string, BaseChannel> {
         this.cache.set(channelId, channel);
         return channel;
       }
+    }
+  }
+
+  public static getChannelByType<T extends keyof Channels>(type: T): Channels[T] | undefined {
+    switch (type) {
+      case ChannelType.Dm:
+      case ChannelType.GuildText:
+        return TextChannel;
+      default:
+        return;
     }
   }
 
