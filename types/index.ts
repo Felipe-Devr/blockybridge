@@ -4,3 +4,5 @@ export * from './routes';
 export * from './raw';
 export * from './options';
 export * from './channel';
+export * from './poll';
+export * from './message';
