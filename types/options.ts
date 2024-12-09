@@ -31,6 +31,11 @@ interface CreateVoiceChannelOptions {
   user_limit: number;
 }
 
+interface BanOptions {
+  reason?: string;
+  deleteMessagesSeconds?: number;
+}
+
 interface CreateChannelOptions {
   [ChannelType.GuildText]: CreateTextChannelOptions;
   [ChannelType.GuildVoice]: CreateVoiceChannelOptions;
@@ -38,8 +43,33 @@ interface CreateChannelOptions {
   [ChannelType.GuildMedia]: CreateTextChannelOptions;
 }
 
+interface MemberFetchOptions {
+  limit?: number;
+  after?: string;
+}
+
+interface GuildFetchOptions {
+  before?: string;
+  limit?: number;
+  after?: string;
+  withCounts?: boolean;
+}
+
+interface PollFetchOptions {
+  limit?: number;
+  after?: string;
+}
+
 const VALID_SIZE = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 type ImageSize = (typeof VALID_SIZE)[number];
 
-export { AwaitMessageOptions, UrlImageOptions, CreateChannelOptions };
+export {
+  AwaitMessageOptions,
+  UrlImageOptions,
+  CreateChannelOptions,
+  BanOptions,
+  MemberFetchOptions,
+  GuildFetchOptions,
+  PollFetchOptions,
+};

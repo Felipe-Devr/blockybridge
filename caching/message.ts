@@ -1,12 +1,13 @@
 import { Message } from 'djs/builders';
 import Client from 'djs/client';
 import { BaseCache } from './base';
-import { TextChannel } from 'djs/structures';
+import { BaseTextChannel } from 'djs/structures';
 import { Routes } from 'djs/types';
 
 class MessageCache extends BaseCache<string, Message> {
-  private channel: TextChannel;
-  public constructor(client: Client, channel: TextChannel) {
+  private channel: BaseTextChannel;
+
+  public constructor(client: Client, channel: BaseTextChannel) {
     super(client);
     this.channel = channel;
   }
