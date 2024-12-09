@@ -5,19 +5,45 @@ import { Message } from 'djs/builders';
 
 class User {
   protected client: Client;
+
+  // The DM text channel if the client has one with the user.
   public dmChannel?: TextChannel;
+
+  // The user's ID.
   public readonly id: string;
+
+  // The user's username.
   public readonly username: string;
+
+  // The user's discriminator.
   public readonly discriminator: string;
+
+  // Wether or not the user is a bot
   public readonly bot?: boolean;
+
+  // The user's email if available.
   public readonly email?: string;
+
+  // The user's banner color encoded as an integer representation of hexadecimal color code
   public readonly accentColor?: number;
+
+  // The user's chosen language option
   public readonly locale?: string;
+
+  //	The flags on a user's account
   public readonly flags?: number;
+
+  // 	The public flags on a user's account
   public readonly publicFlags?: number;
+
+  // Whether the email on this account has been verified
   public readonly verified?: boolean;
-  public readonly avatar?: string;
-  public readonly banner?: string;
+
+  // The user's avatar hash
+  private readonly avatar?: string;
+
+  // The user's banner hash
+  private readonly banner?: string;
 
   public constructor(client: Client, data: RawUser) {
     this.client = client;
@@ -42,7 +68,7 @@ class User {
     const channel = await this.createDm();
 
     if (!channel) return;
-    channel.sendMessage(message);
+    channel.send(message);
   }
 
   public async deleteDm(): Promise<void> {
