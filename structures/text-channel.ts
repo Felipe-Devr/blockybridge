@@ -1,34 +1,9 @@
-import Client from 'djs/client';
-import { BaseChannel } from './channel';
+import { BaseTextChannel } from './channel';
 import { Message } from 'djs/builders';
-import { MessageCache } from 'djs/caching';
 import { system, TicksPerSecond } from '@minecraft/server';
-import { AwaitMessageOptions, RawChannel, RawMessage, Routes } from 'djs/types';
+import { AwaitMessageOptions, RawMessage, Routes } from 'djs/types';
 
-class TextChannel extends BaseChannel {
-  private messages: MessageCache;
-
-  public constructor(client: Client, data?: RawChannel) {
-    super(client);
-    this.messages = new MessageCache(client, this);
-
-    if (data) this.deserialize(data);
-  }
-
-  public async sendMessage(message: Message | string): Promise<void> {
-    message = message instanceof Message ? message : new Message(this.client).setContent(message);
-
-    const response = await this.client.sendAuthenticatedRequest(
-      `${Routes.Channels}/${this.id}/messages`,
-      'Post',
-      message.serialize(),
-    );
-
-    if (response.status != 200) throw new Error('Failed to send message');
-    message = new Message(this.client, JSON.parse(response.body));
-    this.messages.setMessage(message.id, message);
-  }
-
+class TextChannel extends BaseTextChannel {
   // TODO: Optimize this and fix it
   public awaitMessages(options: AwaitMessageOptions): Promise<Array<Message>> {
     return new Promise((resolve) => {
@@ -53,12 +28,6 @@ class TextChannel extends BaseChannel {
         return resolve(messages.map((raw) => new Message(this.client, raw)));
       }, options.time * TicksPerSecond);
     });
-  }
-
-  private deserialize(data: RawChannel): void {
-    const { id } = data;
-
-    this.id = id;
   }
 }
 
