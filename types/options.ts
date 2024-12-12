@@ -60,6 +60,17 @@ interface PollFetchOptions {
   after?: string;
 }
 
+interface GuildMemberEditOptions {
+  nick?: string;
+  reason?: string;
+  communicationDisabledUntil?: Date | number;
+  deaf?: boolean;
+  flags?: number;
+  mute?: boolean;
+  roles?: Array<string>;
+  channel?: string;
+}
+
 const VALID_SIZE = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096];
 
 type ImageSize = (typeof VALID_SIZE)[number];
@@ -72,4 +83,5 @@ export {
   MemberFetchOptions,
   GuildFetchOptions,
   PollFetchOptions,
+  GuildMemberEditOptions,
 };
