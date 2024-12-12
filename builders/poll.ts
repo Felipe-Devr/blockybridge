@@ -1,7 +1,8 @@
 import Client from 'djs/client';
-import { User } from 'djs/structures';
-import { PollAnswer, PollFetchOptions, PollMedia, PollResults, RawMessage, RawPoll, RawUser, Routes } from 'djs/types';
+import { PollResults, User } from 'djs/structures';
+import { PollAnswer, PollFetchOptions, PollMedia, RawMessage, RawUser, Routes } from 'djs/types';
 
+// TODO: Add a more clean results way
 class Poll {
   private client: Client;
   private channel: string;
@@ -16,9 +17,17 @@ class Poll {
     this.client = client;
 
     if (!data) return;
+    const { question, answers, duration, allow_multiselect, layout_type: _, expiry } = data.poll;
     this.id = data.id;
     this.channel = channel;
-    this.deserialize(data.poll!);
+    this.title = question;
+    this.options = answers.map((answer) => ({
+      answerId: answer.answer_id,
+      pollMedia: answer.poll_media,
+    }));
+    this.duration = duration;
+    this.allowMultiSelection = allow_multiselect;
+    this.expiry = expiry ? new Date(expiry) : undefined;
   }
 
   public async end(): Promise<PollResults> {
@@ -31,12 +40,7 @@ class Poll {
     const rawPoll = (JSON.parse(response.body) as RawMessage).poll!;
 
     if (!rawPoll.results) return;
-    const results: PollResults = {};
-
-    for (const rawResult of rawPoll.results.answer_counts) {
-      results[rawResult.id] = rawResult.count;
-    }
-    return results;
+    return new PollResults(rawPoll.results.answer_counts);
   }
 
   public async fetchVotes(answerId: number, options?: PollFetchOptions): Promise<Array<User>> {
@@ -78,7 +82,7 @@ class Poll {
     return this;
   }
 
-  public serialize(): string {
+  public toJSON(): string {
     return JSON.stringify({
       question: this.title,
       answers: this.options.map((option, idx) => ({
@@ -89,20 +93,6 @@ class Poll {
       allow_multiselect: this.allowMultiSelection,
       layout_type: 1,
     });
-  }
-
-  private deserialize(data: RawPoll) {
-    const { question, answers, duration, allow_multiselect, layout_type: _, expiry } = data;
-
-    this.title = question;
-    this.options = answers.map((answer) => ({
-      answerId: answer.answer_id,
-      pollMedia: answer.poll_media,
-    }));
-    this.duration = duration;
-    this.allowMultiSelection = allow_multiselect;
-    this.expiry = expiry ? new Date(expiry) : undefined;
-    return this;
   }
 }
 

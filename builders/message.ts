@@ -16,9 +16,14 @@ class Message {
 
   public constructor(client: Client, data?: RawMessage) {
     this.client = client;
-    if (data) {
-      this.deserialize(data);
-    }
+    if (!data) return;
+    const { id, channel_id, content } = data;
+
+    // TODO: Add more raw fields
+    this.id = id;
+    this.channelId = channel_id;
+    this.content = content;
+    this.poll = data.poll ? new Poll(this.client, this.channelId, data) : undefined;
   }
 
   public setContent(content: string): this {
@@ -33,7 +38,7 @@ class Message {
 
   public edit(content: string): this {
     this.content = content;
-    this.client.sendAuthenticatedRequest(`${Routes.Channels}/${this.channelId}/messages/${this.id}`, 'Patch', this.serialize());
+    this.client.sendAuthenticatedRequest(`${Routes.Channels}/${this.channelId}/messages/${this.id}`, 'Patch', this.toJSON());
 
     return this;
   }
@@ -74,14 +79,14 @@ class Message {
     return this;
   }
 
-  public serialize(): string {
-    const serialized: Partial<RawMessage> = {
+  public toJSON(): string {
+    const toJSONd: Partial<RawMessage> = {
       content: this.content ?? '',
       embeds: this.embeds,
     };
 
     if (this.reference) {
-      serialized.message_reference = {
+      toJSONd.message_reference = {
         channel_id: this.reference.channelId,
         message_id: this.reference.messageId,
         fail_if_not_exists: this.reference.failIfNotFound,
@@ -90,19 +95,9 @@ class Message {
     }
 
     if (this.poll) {
-      serialized.poll = JSON.parse(this.poll.serialize());
+      toJSONd.poll = JSON.parse(this.poll.toJSON());
     }
-    return JSON.stringify(serialized);
-  }
-
-  // TODO
-  private deserialize(data: RawMessage): void {
-    const { id, channel_id, content } = data;
-
-    this.id = id;
-    this.channelId = channel_id;
-    this.content = content;
-    this.poll = data.poll ? new Poll(this.client, this.channelId, data) : undefined;
+    return JSON.stringify(toJSONd);
   }
 }
 

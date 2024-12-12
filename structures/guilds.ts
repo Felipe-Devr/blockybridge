@@ -25,7 +25,11 @@ class Guild {
     this.bans = new BanManager(client, this);
     this.members = new MembersCache(client, this);
 
-    if (data) this.deserialize(data);
+    if (!data) return;
+    // TODO: Add more fields
+    const { id } = data;
+
+    this.id = id;
   }
 
   public async fetchChannels(): Promise<void> {
@@ -63,12 +67,6 @@ class Guild {
     this.channels.setChannel(channel.id, channel);
 
     return channel;
-  }
-
-  private deserialize(data: RawGuild) {
-    const { id } = data;
-
-    this.id = id;
   }
 }
 
