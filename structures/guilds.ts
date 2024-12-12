@@ -13,6 +13,7 @@ import {
 import { BaseChannel } from './channel';
 import { BanManager } from 'djs/managers';
 import { ClientDebugEventSignal } from 'djs/events';
+import { ChannelCreateEventSignal } from 'djs/events/channel-create';
 
 class BaseGuild {
   protected client: Client;
@@ -104,8 +105,10 @@ class Guild extends BaseGuild {
 
     if (!channelConstructor) return;
     const channel = new channelConstructor(this.client, rawChannel);
-    this.client.channels.setChannel(channel.id, channel);
+    const signal = new ChannelCreateEventSignal(channel);
 
+    this.client.emit(signal);
+    this.client.channels.setChannel(channel.id, channel);
     return channel;
   }
 

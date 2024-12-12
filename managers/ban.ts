@@ -1,4 +1,5 @@
 import Client from 'djs/client';
+import { GuildBanAddEventSignal } from 'djs/events';
 import { Guild } from 'djs/structures';
 import { BanOptions, Routes } from 'djs/types';
 
@@ -25,7 +26,11 @@ class BanManager {
     );
 
     if (response.status === 204) {
+      const bannedUser = await this.guild.members.resolve(userId);
+      const signal = new GuildBanAddEventSignal(bannedUser.user, options.reason);
+
       this.bans.add(userId);
+      this.client.emit(signal);
       return true;
     }
     return false;
@@ -43,7 +48,9 @@ class BanManager {
     );
 
     if (response.status === 200) {
-      userIds.forEach((userId) => this.bans.add(userId));
+      for (const userId of userIds) {
+        this.bans.add(userId);
+      }
       return true;
     }
     return false;

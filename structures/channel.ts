@@ -81,6 +81,7 @@ class BaseTextChannel extends BaseChannel {
   }
 
   public set lastMessage(message: Message) {
+    this.messages.setMessage(message.id, message);
     this._lastMessage = message;
   }
 }
