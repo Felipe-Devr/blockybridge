@@ -17,12 +17,21 @@ class Message {
   public constructor(client: Client, data?: RawMessage) {
     this.client = client;
     if (!data) return;
-    const { id, channel_id, content } = data;
+    const { id, channel_id, content, message_reference } = data;
 
     // TODO: Add more raw fields
     this.id = id;
     this.channelId = channel_id;
     this.content = content;
+    this.reference = message_reference
+      ? {
+          channelId: message_reference.channel_id,
+          messageId: message_reference.message_id,
+          type: message_reference.type,
+          failIfNotFound: message_reference.fail_if_not_exists,
+          guildId: message_reference.guild_id,
+        }
+      : undefined;
     this.poll = data.poll ? new Poll(this.client, this.channelId, data) : undefined;
   }
 
@@ -50,6 +59,10 @@ class Message {
 
   public getPoll(): Poll | undefined {
     return this.poll;
+  }
+
+  public isReply(): boolean {
+    return !!this.reference;
   }
 
   public async reply(message: Message | string): Promise<Message | undefined> {
@@ -80,13 +93,13 @@ class Message {
   }
 
   public toJSON(): string {
-    const toJSONd: Partial<RawMessage> = {
+    const serialized: Partial<RawMessage> = {
       content: this.content ?? '',
       embeds: this.embeds,
     };
 
     if (this.reference) {
-      toJSONd.message_reference = {
+      serialized.message_reference = {
         channel_id: this.reference.channelId,
         message_id: this.reference.messageId,
         fail_if_not_exists: this.reference.failIfNotFound,
@@ -95,9 +108,9 @@ class Message {
     }
 
     if (this.poll) {
-      toJSONd.poll = JSON.parse(this.poll.toJSON());
+      serialized.poll = JSON.parse(this.poll.toJSON());
     }
-    return JSON.stringify(toJSONd);
+    return JSON.stringify(serialized);
   }
 }
 
