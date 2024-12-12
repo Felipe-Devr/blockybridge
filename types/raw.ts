@@ -54,8 +54,30 @@ interface RawChannel {
   type: ChannelType;
 }
 
-interface RawGuild {
+interface RawGuild extends PartialGuild {
+  owner_id: string;
+  roles: Array<unknown>;
+  verification_level: number;
+  splash?: string;
+  discovery_splash?: string;
+  stickers: Array<unknown>;
+  mfa_level: number;
+  premium_tier: number;
+  nsfw_level: number;
+  preferred_locale: string;
+  emojis: Array<unknown>;
+  permissions: string;
+  features: Array<string>;
+}
+
+interface PartialGuild {
   id: string;
+  name: string;
+  icon?: string;
+  banner?: string;
+  owner: boolean;
+  permissions: string;
+  features: Array<string>;
 }
 
 interface RawUser {
@@ -88,4 +110,15 @@ interface RawMember {
   permissions: string;
 }
 
-export { RawMessage, RawChannel, RawGuild, RawUser, RawMember, RawMessageReference, RawPoll, PollResult, PollAnswerCount };
+export {
+  RawMessage,
+  RawChannel,
+  RawGuild,
+  RawUser,
+  RawMember,
+  RawMessageReference,
+  RawPoll,
+  PollResult,
+  PollAnswerCount,
+  PartialGuild,
+};

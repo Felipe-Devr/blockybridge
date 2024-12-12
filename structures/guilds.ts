@@ -1,29 +1,35 @@
 import { ChannelCache, MembersCache } from 'djs/caching';
 import Client from 'djs/client';
-import { Channels, CreateChannelOptions, RawChannel, RawGuild, Routes } from 'djs/types';
+import {
+  Channels,
+  ChannelType,
+  CreateChannelOptions,
+  PartialGuild,
+  RawChannel,
+  RawGuild,
+  Routes,
+  UrlImageOptions,
+} from 'djs/types';
 import { BaseChannel } from './channel';
 import { BanManager } from 'djs/managers';
+import { ClientDebugEventSignal } from 'djs/events';
 
-class Guild {
-  private client: Client;
-
-  // The guild's channel cache
-  public readonly channels: ChannelCache;
-
-  // The guild's member cache
-  public readonly members: MembersCache;
-
-  // The guild's ban manager (used for managing bans)
-  public readonly bans: BanManager;
-
+class BaseGuild {
+  protected client: Client;
   // The guild's ID
   public id: string;
 
-  public constructor(client: Client, data?: RawGuild) {
+  // The guild's description
+  public description?: string;
+
+  // The guild's name
+  public name: string;
+
+  // Icon image hash
+  private icon?: string;
+
+  public constructor(client: Client, data?: RawGuild | PartialGuild) {
     this.client = client;
-    this.channels = new ChannelCache(client);
-    this.bans = new BanManager(client, this);
-    this.members = new MembersCache(client, this);
 
     if (!data) return;
     // TODO: Add more fields
@@ -32,20 +38,54 @@ class Guild {
     this.id = id;
   }
 
+  public iconUrl(imageOptions: UrlImageOptions): string {
+    if (!this.icon) return '';
+    return `${Routes.Icon}/${this.id}/${this.icon}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
+  }
+
+  public fetch(): Promise<Guild> {
+    return this.client.guilds.resolve(this.id, true);
+  }
+}
+
+class Guild extends BaseGuild {
+  // Banner image hash
+  private banner?: string;
+
+  // The guild's member cache
+  public readonly members: MembersCache;
+
+  // The guild's ban manager (used for managing bans)
+  public readonly bans: BanManager;
+
+  public constructor(client: Client, data?: RawGuild) {
+    super(client, data);
+    this.bans = new BanManager(client, this);
+    this.banner = data.banner;
+    this.members = new MembersCache(client, this);
+  }
+
+  public async fetch(): Promise<Guild> {
+    return this;
+  }
+
   public async fetchChannels(): Promise<void> {
     const response = await this.client.sendAuthenticatedRequest(`${Routes.Guilds}/${this.id}/channels`, 'Get');
 
     if (response.status !== 200) throw new Error('Error fetching channels');
     const rawChannels = JSON.parse(response.body) as Array<RawChannel>;
 
-    rawChannels.forEach((raw) => {
-      const channelConstructor = ChannelCache.getChannelByType(raw.type as keyof Channels);
+    for (const rawChannel of rawChannels) {
+      const channelConstructor = ChannelCache.getChannelByType(rawChannel.type as keyof Channels);
 
-      if (!channelConstructor) return null;
-      const channel = new channelConstructor(this.client, raw);
+      if (!channelConstructor) {
+        this.client.emit(new ClientDebugEventSignal(`Channel constructor not found for ${ChannelType[rawChannel.type]}`));
+        continue;
+      }
+      const channel = new channelConstructor(this.client, rawChannel);
 
-      this.channels.setChannel(channel.id, channel);
-    });
+      this.client.channels.setChannel(channel.id, channel);
+    }
   }
 
   public async createChannel<V extends keyof CreateChannelOptions>(
@@ -64,10 +104,15 @@ class Guild {
 
     if (!channelConstructor) return;
     const channel = new channelConstructor(this.client, rawChannel);
-    this.channels.setChannel(channel.id, channel);
+    this.client.channels.setChannel(channel.id, channel);
 
     return channel;
   }
+
+  public bannerUrl(imageOptions: UrlImageOptions): string {
+    if (!this.banner) return '';
+    return `${Routes.Banner}/${this.id}/${this.banner}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
+  }
 }
 
-export { Guild };
+export { Guild, BaseGuild };
