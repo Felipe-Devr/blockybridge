@@ -16,13 +16,9 @@ interface PollRequest {
   layoutType: PollLayoutType;
 }
 
-interface PollResults {
-  [x: number]: number;
-}
-
 // HUH?
 enum PollLayoutType {
   Default = 1,
 }
 
-export { PollRequest, PollAnswer, PollMedia, PollResults };
+export { PollRequest, PollAnswer, PollMedia };
