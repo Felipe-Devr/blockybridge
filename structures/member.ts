@@ -1,8 +1,9 @@
 import Client from 'djs/client';
 import { User } from './user';
-import { BanOptions, RawMember, Routes } from 'djs/types';
+import { BanOptions, GuildMemberEditOptions, RawMember, Routes, UrlImageOptions } from 'djs/types';
 import { Guild } from './guilds';
 import { RoleManager } from 'djs/managers';
+import { TextChannel } from './text-channel';
 
 class GuildMember {
   // The internal user of the member
@@ -75,6 +76,58 @@ class GuildMember {
         delete_message_seconds: options?.deleteMessagesSeconds ?? 0,
       }),
     );
+  }
+
+  public avatarUrl(options?: UrlImageOptions) {
+    this.user.avatarUrl(options);
+  }
+
+  public bannerUrl(options?: UrlImageOptions) {
+    this.user.bannerUrl(options);
+  }
+
+  public async createDm(): Promise<TextChannel> {
+    return this.user.createDm();
+  }
+
+  public async edit(options: GuildMemberEditOptions): Promise<GuildMember> {
+    const serializedOptions = { ...options };
+    if (options.communicationDisabledUntil) {
+      serializedOptions['communication_disabled_until'] = options.communicationDisabledUntil;
+      delete serializedOptions.communicationDisabledUntil;
+    }
+    const result = await this.client.sendAuthenticatedRequest(
+      `${Routes.Guilds}/${this.guild.id}/members/${this.user.id}`,
+      'Patch',
+      JSON.stringify(serializedOptions),
+    );
+
+    if (result.status !== 200) return;
+    const member = new GuildMember(this.client, this.guild, JSON.parse(result.body));
+    return this.guild.members.setMember(member.user.id, member);
+  }
+
+  public async setNickname(nickname: string, reason?: string): Promise<GuildMember> {
+    return this.edit({ nick: nickname, reason });
+  }
+
+  public async setFlags(flags: number, reason?: string): Promise<GuildMember> {
+    return this.edit({ flags, reason });
+  }
+
+  public async timeout(time: number, reason?: string): Promise<GuildMember> {
+    return this.edit({ communicationDisabledUntil: Date.now() + time * 1000, reason });
+  }
+
+  public disableCommunication(disabledUntil?: number | Date, reason?: string): Promise<GuildMember> {
+    return this.edit({
+      communicationDisabledUntil: disabledUntil,
+      reason,
+    });
+  }
+
+  public async deleteDm(): Promise<void> {
+    this.user.deleteDm();
   }
 
   public async kick(): Promise<void> {
