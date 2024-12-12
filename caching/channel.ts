@@ -42,6 +42,10 @@ class ChannelCache extends BaseCache<string, BaseChannel> {
   public getChannels(): Array<BaseChannel> {
     return Array.from(this.cache.values());
   }
+
+  *[Symbol.iterator](): IterableIterator<BaseChannel> {
+    return this.cache.values();
+  }
 }
 
 export { ChannelCache };

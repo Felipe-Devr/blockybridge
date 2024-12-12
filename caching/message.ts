@@ -33,8 +33,8 @@ class MessageCache extends BaseCache<string, Message> {
     return message;
   }
 
-  public async getLastMessage(): Promise<Message | undefined> {
-    if (this.cache.size > 0) {
+  public async getLastMessage(force: boolean = false): Promise<Message | undefined> {
+    if (this.cache.size > 0 && !force) {
       return this.getMessages().slice(-1)[0];
     }
     const response = await this.client.sendAuthenticatedRequest(`${Routes.Channels}/${this.channel.id}/messages?limit=1`, 'Get');

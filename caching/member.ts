@@ -55,6 +55,11 @@ class MembersCache extends BaseCache<string, GuildMember> {
     this.cache.set(memberId, member);
     return member;
   }
+
+  public setMember(memberId: string, member: GuildMember): GuildMember {
+    this.cache.set(memberId, member);
+    return member;
+  }
 }
 
 export { MembersCache };
