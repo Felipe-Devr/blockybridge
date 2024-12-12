@@ -1,7 +1,7 @@
 import { Message, Poll } from 'djs/builders';
 import { MessageCache } from 'djs/caching';
 import Client from '../client';
-import { RawChannel, Routes } from '../types';
+import { RawChannel, RawMessage, Routes } from '../types';
 import { TextChannel } from './text-channel';
 
 class BaseChannel {
@@ -29,7 +29,23 @@ class BaseTextChannel extends BaseChannel {
     super(client);
     this.messages = new MessageCache(client, this);
 
-    if (data) this.deserialize(data);
+    if (!data) return;
+    // TODO: Add more fields
+    const { id } = data;
+
+    this.id = id;
+  }
+
+  public async fetchMessages(): Promise<void> {
+    const response = await this.client.sendAuthenticatedRequest(`${Routes.Channels}/${this.id}/messages`, 'Get');
+
+    if (response.status != 200) return;
+    const messages = JSON.parse(response.body) as Array<RawMessage>;
+
+    for (const rawMessage of messages) {
+      const message = new Message(this.client, rawMessage);
+      this.messages.setMessage(message.id, message);
+    }
   }
 
   public async send(message: Message | string | Poll): Promise<Message> {
@@ -42,7 +58,7 @@ class BaseTextChannel extends BaseChannel {
     const response = await this.client.sendAuthenticatedRequest(
       `${Routes.Channels}/${this.id}/messages`,
       'Post',
-      message.serialize(),
+      message.toJSON(),
     );
 
     if (response.status != 200) throw new Error('Failed to send message');
@@ -50,12 +66,6 @@ class BaseTextChannel extends BaseChannel {
     this.messages.setMessage(message.id, message);
 
     return message;
-  }
-
-  private deserialize(data: RawChannel): void {
-    const { id } = data;
-
-    this.id = id;
   }
 }
 
