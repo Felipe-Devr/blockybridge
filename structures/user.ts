@@ -99,7 +99,7 @@ class User {
 
   public bannerUrl(imageOptions: UrlImageOptions): string {
     if (!this.banner) return '';
-    return `${Routes.Banner}/${this.id}/${this.avatar}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
+    return `${Routes.Banner}/${this.id}/${this.banner}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
   }
 }
 

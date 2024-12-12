@@ -8,6 +8,7 @@ enum Routes {
   CDN = 'https://cdn.discordapp.com/',
   Avatar = Routes.CDN + 'avatars',
   Banner = Routes.CDN + 'banners',
+  Icon = Routes.CDN + 'icons',
 }
 
 export { Routes, API_ENDPOINT };
