@@ -2,8 +2,10 @@ import { http, HttpHeader, HttpRequest, HttpRequestMethod, HttpResponse } from '
 import { ChannelCache } from './caching';
 import { GuildCache } from './caching/guilds';
 import { EventEmitter } from './structures/emitter';
-import { ClientEvents, ClientReadyEventSignal } from './events';
+import { ClientDebugEventSignal, ClientEvents, ClientReadyEventSignal, MessageCreateEventSignal } from './events';
 import { Routes } from './types';
+import { system } from '@minecraft/server';
+import { Guild } from './structures';
 
 class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientEvents]> {
   private token: string;
@@ -30,23 +32,46 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
     this.token = token;
 
     // In scripting api we dont have websockets, so we cant possibly do some events, like, message, and others.
-    this.sendAuthenticatedRequest(`${Routes.Applications}/@me`, 'Get').then((response) => {
-      if (response.status == 200) {
-        this.emit(new ClientReadyEventSignal(this, this.token));
-        return;
+    this.sendAuthenticatedRequest(`${Routes.Applications}/@me`, 'Get').then(async (response) => {
+      if (response.status != 200) throw new Error(`Failed to authenticate with Discord API: ${response.status}`);
+      this.emit(new ClientReadyEventSignal(this, this.token));
+      await this.guilds.fetch();
+
+      for (const cached of this.guilds) {
+        const guild = cached instanceof Guild ? cached : await cached.fetch();
+        await guild.fetchChannels();
       }
-      throw new Error(`Failed to authenticate with Discord API: ${response.status}`);
+
+      system.runInterval(async () => {
+        // Message create event listener
+        for (const channel of this.channels) {
+          if (!channel.isTextBased()) continue;
+          if (!channel.lastMessage) {
+            await channel.fetchLastMessage();
+            continue;
+          }
+          const lastMessage = await channel.fetchLastMessage(false);
+          if (lastMessage.id == channel.lastMessage.id || lastMessage.isReply()) continue;
+          channel.lastMessage = lastMessage;
+          const signal = new MessageCreateEventSignal(lastMessage);
+          this.emit(signal);
+        }
+      }, 20);
+      return;
     });
   }
 
-  public sendAuthenticatedRequest(uri: string, method: string, body?: string): Promise<HttpResponse> {
+  public async sendAuthenticatedRequest(uri: string, method: string, body?: string): Promise<HttpResponse> {
     const request = new HttpRequest(uri);
 
     request.method = method as HttpRequestMethod;
     if (body != undefined) request.body = body;
     request.headers = [new HttpHeader('Content-Type', 'application/json'), new HttpHeader('Authorization', `Bot ${this.token}`)];
 
-    return http.request(request);
+    const response = await http.request(request);
+
+    this.emit(new ClientDebugEventSignal(`Code: ${response.status} Body: ${response.body.slice(0, 200).trim()}`));
+    return response;
   }
 }
 
