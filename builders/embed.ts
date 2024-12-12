@@ -12,7 +12,7 @@ class EmbedBuilder {
   private fields: Array<Field> = [];
 
   public setTitle(title: string): this {
-    this.title = title;
+    this.title = title.slice(0, 256);
     return this;
   }
 
@@ -22,7 +22,7 @@ class EmbedBuilder {
   }
 
   public setDescription(description: string): this {
-    this.description = description;
+    this.description = description.slice(0, 4096);
     return this;
   }
 
@@ -41,7 +41,7 @@ class EmbedBuilder {
   }
 
   public setFooter(footer: string): this {
-    this.footer = { text: footer };
+    this.footer = { text: footer.slice(0, 2048) };
     return this;
   }
 
@@ -51,16 +51,17 @@ class EmbedBuilder {
   }
 
   public setAuthor(author: string): this {
-    this.author = { name: author };
+    this.author = { name: author.slice(0, 256) };
     return this;
   }
 
   public addField(name: string, value: string, inline?: boolean): this {
-    this.fields.push({ name, value, inline });
+    if (this.fields.length > 25) throw new Error('You cant add more than 25 fields.');
+    this.fields.push({ name: name.slice(0, 256), value: value.slice(0, 1024), inline });
     return this;
   }
 
-  public serialize(): string {
+  public toJSON(): string {
     return JSON.stringify({
       title: this.title,
       description: this.description,
