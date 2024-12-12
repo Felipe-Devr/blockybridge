@@ -3,6 +3,7 @@ import { BaseCache } from './base';
 import Client from 'djs/client';
 import { RawChannel, Routes } from 'djs/types';
 import { Channels, ChannelType } from 'djs/types/channel';
+import { ClientDebugEventSignal } from 'djs/events';
 
 class ChannelCache extends BaseCache<string, BaseChannel> {
   constructor(client: Client) {
@@ -36,6 +37,7 @@ class ChannelCache extends BaseCache<string, BaseChannel> {
   }
 
   public setChannel(channelId: string, channel: BaseChannel) {
+    this.client.emit(new ClientDebugEventSignal('Caching channeld with id' + channelId));
     this.cache.set(channelId, channel);
   }
 
@@ -44,7 +46,13 @@ class ChannelCache extends BaseCache<string, BaseChannel> {
   }
 
   *[Symbol.iterator](): IterableIterator<BaseChannel> {
-    return this.cache.values();
+    for (const channel of this.cache.values()) {
+      yield channel;
+    }
+  }
+
+  public get size(): number {
+    return this.cache.size;
   }
 }
 
