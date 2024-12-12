@@ -1,7 +1,9 @@
 enum ClientEvent {
   Ready,
-  Message,
+  MessageCreate,
+  ChannelCreate,
   Debug,
+  GuildBanAdd,
 }
 
 export { ClientEvent };
