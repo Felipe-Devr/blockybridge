@@ -2,7 +2,6 @@ import { Message, Poll } from 'djs/builders';
 import { MessageCache } from 'djs/caching';
 import Client from '../client';
 import { RawChannel, RawMessage, Routes } from '../types';
-import { TextChannel } from './text-channel';
 
 class BaseChannel {
   protected client: Client;
@@ -17,13 +16,15 @@ class BaseChannel {
     this.client.sendAuthenticatedRequest(`${Routes.Channels}/${this.id}`, 'DELETE');
   }
 
-  public isTextBased(): this is TextChannel {
+  public isTextBased(): this is BaseTextChannel {
     return this instanceof BaseTextChannel;
   }
 }
 
 class BaseTextChannel extends BaseChannel {
   protected messages: MessageCache;
+
+  private _lastMessage: Message;
 
   public constructor(client: Client, data?: RawChannel) {
     super(client);
@@ -66,6 +67,21 @@ class BaseTextChannel extends BaseChannel {
     this.messages.setMessage(message.id, message);
 
     return message;
+  }
+
+  public async fetchLastMessage(save: boolean = true): Promise<Message> {
+    const message = await this.messages.getLastMessage(true);
+
+    if (save) this._lastMessage = message;
+    return message;
+  }
+
+  public get lastMessage(): Message {
+    return this._lastMessage;
+  }
+
+  public set lastMessage(message: Message) {
+    this._lastMessage = message;
   }
 }
 
