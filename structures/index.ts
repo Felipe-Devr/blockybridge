@@ -5,3 +5,4 @@ export * from './user';
 export * from './emitter';
 export * from './member';
 export * from './poll-results';
+export * from './event';

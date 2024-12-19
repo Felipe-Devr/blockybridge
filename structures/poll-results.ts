@@ -1,4 +1,4 @@
-import { PollAnswerCount } from 'djs/types';
+import { PollAnswerCount } from '../types';
 
 class PollResults {
   private _results: Map<number, PollAnswerCount> = new Map();

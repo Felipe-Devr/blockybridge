@@ -1,8 +1,8 @@
-import Client from 'djs/client';
+import { Client } from '../client';
 import { User } from './user';
-import { BanOptions, GuildMemberEditOptions, RawMember, Routes, UrlImageOptions } from 'djs/types';
+import { BanOptions, GuildMemberEditOptions, RawMember, Routes, UrlImageOptions } from '../types';
 import { Guild } from './guilds';
-import { RoleManager } from 'djs/managers';
+import { RoleManager } from '../managers';
 import { TextChannel } from './text-channel';
 
 class GuildMember {

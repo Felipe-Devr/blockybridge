@@ -1,4 +1,4 @@
-import Client from 'djs/client';
+import { Client } from '../client';
 
 class BaseCache<K, V> {
   protected cache: Map<K, V> = new Map();

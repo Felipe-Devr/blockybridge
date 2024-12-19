@@ -4,3 +4,4 @@ export * from './builders';
 export * from './structures';
 export * from './managers';
 export * from './caching';
+export * from './events';

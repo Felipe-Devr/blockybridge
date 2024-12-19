@@ -1,4 +1,4 @@
-import { Message } from 'djs/builders';
+import { Message } from '../builders';
 import { ChannelType } from './channel';
 
 interface AwaitMessageOptions {

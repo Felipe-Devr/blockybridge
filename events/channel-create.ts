@@ -1,7 +1,7 @@
-import { BaseChannel, Guild } from 'djs/structures';
-import { ClientEventSignal } from './event';
-import { ClientEvent } from 'djs/types';
-import Client from 'djs/client';
+import { BaseChannel, Guild } from '../structures';
+import { ClientEventSignal } from '../structures/event';
+import { ClientEvent } from '../types';
+import { Client } from '../client';
 
 class ChannelCreateEventSignal extends ClientEventSignal {
   public readonly id: ClientEvent = ClientEvent.ChannelCreate;
@@ -14,8 +14,22 @@ class ChannelCreateEventSignal extends ClientEventSignal {
     this.channel = channel;
   }
 
-  public static async tick(_client: Client, _guilds: Array<Guild>) {
-    // TODO
+  public static async tick(client: Client, guilds: Array<Guild>) {
+    // ? Save the last channel size
+    const channelCount = client.channels.size;
+
+    for (const guild of guilds) {
+      // ? Fetch every guild's channels
+      await guild.fetchChannels();
+    }
+    // ? Compare the size
+    if (channelCount == client.channels.size) return;
+
+    // ? If the size changed, then get the new channel
+    const newChannel = client.channels.getChannels()[channelCount];
+
+    // ? Emit the channel creation event
+    client.emit(new this(newChannel));
   }
 }
 

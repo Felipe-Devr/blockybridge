@@ -1,6 +1,6 @@
-import Client from 'djs/client';
-import { PollResults, User } from 'djs/structures';
-import { PollAnswer, PollFetchOptions, PollMedia, RawMessage, RawUser, Routes } from 'djs/types';
+import { Client } from '../client';
+import { PollResults, User } from '../structures';
+import { PollAnswer, PollFetchOptions, PollMedia, RawMessage, RawUser, Routes } from '../types';
 
 // TODO: Add a more clean results way
 class Poll {

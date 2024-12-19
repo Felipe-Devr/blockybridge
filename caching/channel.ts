@@ -1,9 +1,9 @@
-import { BaseChannel, TextChannel } from 'djs/structures';
+import { BaseChannel, TextChannel } from '../structures';
 import { BaseCache } from './base';
-import Client from 'djs/client';
-import { RawChannel, Routes } from 'djs/types';
-import { Channels, ChannelType } from 'djs/types/channel';
-import { ClientDebugEventSignal } from 'djs/events';
+import { Client } from '../client';
+import { RawChannel, Routes } from '../types';
+import { Channels, ChannelType } from '../types/channel';
+import { ClientDebugEventSignal } from '../events';
 
 class ChannelCache extends BaseCache<string, BaseChannel> {
   constructor(client: Client) {

@@ -1,6 +1,6 @@
-import Client from 'djs/client';
-import { GuildMember } from 'djs/structures';
-import { Routes } from 'djs/types';
+import { Client } from '../client';
+import { GuildMember } from '../structures';
+import { Routes } from '../types';
 
 class RoleManager {
   private member: GuildMember;

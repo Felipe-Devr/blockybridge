@@ -1,7 +1,7 @@
-import { Guild, User } from 'djs/structures';
-import { ClientEventSignal } from './event';
-import { ClientEvent } from 'djs/types';
-import Client from 'djs/client';
+import { Guild, User } from '../structures';
+import { ClientEventSignal } from '../structures/event';
+import { ClientEvent } from '../types';
+import { Client } from '../client';
 
 class GuildBanAddEventSignal extends ClientEventSignal {
   public readonly id: ClientEvent;

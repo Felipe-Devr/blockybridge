@@ -1,7 +1,7 @@
-import { Guild, GuildMember } from 'djs/structures';
+import { Guild, GuildMember } from '../structures';
 import { BaseCache } from './base';
-import Client from 'djs/client';
-import { MemberFetchOptions, RawMember, Routes } from 'djs/types';
+import { Client } from '../client';
+import { MemberFetchOptions, RawMember, Routes } from '../types';
 
 class MembersCache extends BaseCache<string, GuildMember> {
   private guild: Guild;

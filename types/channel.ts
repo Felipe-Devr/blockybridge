@@ -1,4 +1,4 @@
-import { TextChannel } from 'djs/structures';
+import { TextChannel } from '../structures';
 
 enum ChannelType {
   GuildText,

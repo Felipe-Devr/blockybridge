@@ -1,5 +1,5 @@
-import { ChannelCache, MembersCache } from 'djs/caching';
-import Client from 'djs/client';
+import { ChannelCache, MembersCache } from '../caching';
+import { Client } from '../client';
 import {
   Channels,
   ChannelType,
@@ -9,11 +9,10 @@ import {
   RawGuild,
   Routes,
   UrlImageOptions,
-} from 'djs/types';
+} from '../types';
 import { BaseChannel } from './channel';
-import { BanManager } from 'djs/managers';
-import { ClientDebugEventSignal } from 'djs/events';
-import { ChannelCreateEventSignal } from 'djs/events/channel-create';
+import { BanManager } from '../managers';
+import { ClientDebugEventSignal, ChannelCreateEventSignal } from '../events';
 
 class BaseGuild {
   protected client: Client;

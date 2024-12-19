@@ -1,7 +1,7 @@
-import Client from 'djs/client';
-import { GuildBanAddEventSignal } from 'djs/events';
-import { Guild } from 'djs/structures';
-import { BanOptions, Routes } from 'djs/types';
+import { Client } from '../client';
+import { GuildBanAddEventSignal } from '../events';
+import { Guild } from '../structures';
+import { BanOptions, Routes } from '../types';
 
 class BanManager {
   private guild: Guild;

@@ -1,7 +1,8 @@
-import { ClientEventSignal } from 'djs/events';
+import { ClientEventSignal } from '../structures';
 
 class EventEmitter<T, V extends ClientEventSignal> {
-  private listeners: Map<T, Set<(event: V) => void>> = new Map();
+  protected listeners: Map<T, Set<(event: V) => void>> = new Map();
+  public readonly events: Set<V> = new Set();
 
   public on(event: T, listener: (event: V) => void): void {
     const listeners = this.listeners.get(event);

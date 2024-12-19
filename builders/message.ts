@@ -1,8 +1,8 @@
 import { EmbedBuilder } from './embed';
-import { Routes } from 'djs/types/routes';
-import Client from 'djs/client';
-import { RawMessage } from 'djs/types';
-import { MessageReference, MessageReferenceType } from 'djs/types/message';
+import { Routes } from '../types/routes';
+import { Client } from '../client';
+import { RawMessage } from '../types';
+import { MessageReference, MessageReferenceType } from '../types/message';
 import { Poll } from './poll';
 
 class Message {

@@ -1,6 +1,6 @@
-import { Message, Poll } from 'djs/builders';
-import { MessageCache } from 'djs/caching';
-import Client from '../client';
+import { Message, Poll } from '../builders';
+import { MessageCache } from '../caching';
+import { Client } from '../client';
 import { RawChannel, RawMessage, Routes } from '../types';
 
 class BaseChannel {

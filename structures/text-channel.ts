@@ -1,11 +1,8 @@
 import { BaseTextChannel } from './channel';
-import { Message } from 'djs/builders';
-import { system, TicksPerSecond } from '@minecraft/server';
-import { AwaitMessageOptions, RawMessage, Routes } from 'djs/types';
 
 class TextChannel extends BaseTextChannel {
   // TODO: Optimize this and fix it
-  public awaitMessages(options: AwaitMessageOptions): Promise<Array<Message>> {
+  /* public awaitMessages(options: AwaitMessageOptions): Promise<Array<Message>> {
     return new Promise((resolve) => {
       let messages: Array<RawMessage> = [];
 
@@ -28,7 +25,7 @@ class TextChannel extends BaseTextChannel {
         return resolve(messages.map((raw) => new Message(this.client, raw)));
       }, options.time * TicksPerSecond);
     });
-  }
+  } */
 }
 
 export { TextChannel };

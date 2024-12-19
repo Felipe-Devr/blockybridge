@@ -1,11 +1,10 @@
 import { http, HttpHeader, HttpRequest, HttpRequestMethod, HttpResponse } from '@minecraft/server-net';
 import { ChannelCache } from './caching';
 import { GuildCache } from './caching/guilds';
-import { EventEmitter } from './structures/emitter';
-import { ClientDebugEventSignal, ClientEvents, ClientReadyEventSignal, MessageCreateEventSignal } from './events';
-import { Routes } from './types';
+import { ClientDebugEventSignal, ClientReadyEventSignal } from './events';
+import { Routes, ClientEvents } from './types';
 import { system } from '@minecraft/server';
-import { Guild } from './structures';
+import { Guild, EventEmitter } from './structures';
 
 class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientEvents]> {
   private token: string;
@@ -42,21 +41,7 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
         await guild.fetchChannels();
       }
 
-      system.runInterval(async () => {
-        // Message create event listener
-        for (const channel of this.channels) {
-          if (!channel.isTextBased()) continue;
-          if (!channel.lastMessage) {
-            await channel.fetchLastMessage();
-            continue;
-          }
-          const lastMessage = await channel.fetchLastMessage(false);
-          if (lastMessage.id == channel.lastMessage.id || lastMessage.isReply()) continue;
-          channel.lastMessage = lastMessage;
-          const signal = new MessageCreateEventSignal(lastMessage);
-          this.emit(signal);
-        }
-      }, 20);
+      system.runInterval(async () => {}, 20);
       return;
     });
   }
@@ -75,4 +60,4 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
   }
 }
 
-export default Client;
+export { Client };

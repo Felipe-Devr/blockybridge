@@ -1,8 +1,8 @@
-import { Message } from 'djs/builders';
-import { ClientEventSignal } from './event';
-import { ClientEvent } from 'djs/types';
-import { BaseChannel, GuildMember } from 'djs/structures';
-import Client from 'djs/client';
+import { Message } from '../builders';
+import { ClientEventSignal } from '../structures/event';
+import { ClientEvent } from '../types';
+import { BaseChannel, GuildMember } from '../structures';
+import { Client } from '../client';
 
 class MessageCreateEventSignal extends ClientEventSignal {
   public readonly id: ClientEvent = ClientEvent.MessageCreate;

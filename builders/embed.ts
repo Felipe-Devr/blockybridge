@@ -1,5 +1,5 @@
 import { RGB } from '@minecraft/server';
-import { Author, Field, Footer, Image } from 'djs/types';
+import { Author, Field, Footer, Image } from '../types';
 
 class EmbedBuilder {
   private title: string;

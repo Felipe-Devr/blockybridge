@@ -1,7 +1,7 @@
-import Client from 'djs/client';
-import { RawUser, Routes, UrlImageOptions } from 'djs/types';
+import { Client } from '../client';
+import { RawUser, Routes, UrlImageOptions } from '../types';
 import { TextChannel } from './text-channel';
-import { Message } from 'djs/builders';
+import { Message } from '../builders';
 
 class User {
   protected client: Client;

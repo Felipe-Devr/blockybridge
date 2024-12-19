@@ -1,6 +1,6 @@
-import Client from 'djs/client';
-import { ClientEventSignal } from './event';
-import { ClientEvent } from 'djs/types';
+import { Client } from '../client';
+import { ClientEventSignal } from '../structures';
+import { ClientEvent } from '../types';
 
 class ClientReadyEventSignal extends ClientEventSignal {
   public readonly id = ClientEvent.Ready;
