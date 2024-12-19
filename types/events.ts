@@ -1,13 +1,11 @@
-import { ClientReadyEventSignal } from '../events/ready';
-import { MessageCreateEventSignal } from '../events/message-create';
-import { ClientDebugEventSignal } from '../events/debug';
-import { ChannelCreateEventSignal } from '../events/channel-create';
-import { GuildBanAddEventSignal } from '../events/member-ban';
+import type { ClientReadyEventSignal } from '../events/ready';
+import type { MessageCreateEventSignal } from '../events/message-create';
+import type { ClientDebugEventSignal } from '../events/debug';
+import type { GuildBanAddEventSignal } from '../events/member-ban';
 
 enum ClientEvent {
   Ready,
   MessageCreate,
-  ChannelCreate,
   Debug,
   GuildBanAdd,
 }
@@ -15,7 +13,6 @@ enum ClientEvent {
 interface ClientEvents {
   [ClientEvent.Ready]: ClientReadyEventSignal;
   [ClientEvent.MessageCreate]: MessageCreateEventSignal;
-  [ClientEvent.ChannelCreate]: ChannelCreateEventSignal;
   [ClientEvent.Debug]: ClientDebugEventSignal;
   [ClientEvent.GuildBanAdd]: GuildBanAddEventSignal;
 }

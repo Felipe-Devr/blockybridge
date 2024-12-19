@@ -12,29 +12,31 @@ import {
 } from '../types';
 import { BaseChannel } from './channel';
 import { BanManager } from '../managers';
-import { ClientDebugEventSignal, ChannelCreateEventSignal } from '../events';
+import { ClientDebugEventSignal } from '../events';
 
 class BaseGuild {
   protected client: Client;
   // The guild's ID
   public id: string;
 
-  // The guild's description
-  public description?: string;
-
   // The guild's name
   public name: string;
 
   // Icon image hash
-  private icon?: string;
+  protected icon?: string;
 
-  public constructor(client: Client, data?: RawGuild | PartialGuild) {
+  // Banner image hash
+  protected banner?: string;
+
+  public constructor(client: Client, data?: PartialGuild) {
     this.client = client;
 
     if (!data) return;
-    // TODO: Add more fields
-    const { id } = data;
+    const { id, banner, name, icon } = data;
 
+    this.banner = banner;
+    this.name = name;
+    this.icon = icon;
     this.id = id;
   }
 
@@ -43,14 +45,19 @@ class BaseGuild {
     return `${Routes.Icon}/${this.id}/${this.icon}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
   }
 
+  public bannerUrl(imageOptions: UrlImageOptions): string {
+    if (!this.banner) return '';
+    return `${Routes.Banner}/${this.id}/${this.banner}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
+  }
+
   public fetch(): Promise<Guild> {
     return this.client.guilds.resolve(this.id, true);
   }
 }
 
 class Guild extends BaseGuild {
-  // Banner image hash
-  private banner?: string;
+  // The guild's description
+  public description?: string;
 
   // The guild's member cache
   public readonly members: MembersCache;
@@ -61,8 +68,11 @@ class Guild extends BaseGuild {
   public constructor(client: Client, data?: RawGuild) {
     super(client, data);
     this.bans = new BanManager(client, this);
-    this.banner = data.banner;
     this.members = new MembersCache(client, this);
+
+    if (!data) return;
+    const { description } = data;
+    this.description = description;
   }
 
   public async fetch(): Promise<Guild> {
@@ -104,16 +114,9 @@ class Guild extends BaseGuild {
 
     if (!channelConstructor) return;
     const channel = new channelConstructor(this.client, rawChannel);
-    const signal = new ChannelCreateEventSignal(channel);
 
-    this.client.emit(signal);
     this.client.channels.setChannel(channel.id, channel);
     return channel;
-  }
-
-  public bannerUrl(imageOptions: UrlImageOptions): string {
-    if (!this.banner) return '';
-    return `${Routes.Banner}/${this.id}/${this.banner}.${imageOptions.extension ?? 'png'}?size=${imageOptions.size ?? 512}`;
   }
 }
 
