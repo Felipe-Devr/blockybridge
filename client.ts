@@ -1,13 +1,15 @@
 import { http, HttpHeader, HttpRequest, HttpRequestMethod, HttpResponse } from '@minecraft/server-net';
 import { ChannelCache } from './caching';
 import { GuildCache } from './caching/guilds';
-import { ClientDebugEventSignal, ClientReadyEventSignal } from './events';
+import { ClientDebugEventSignal } from './events';
 import { Routes, ClientEvents } from './types';
 import { system } from '@minecraft/server';
-import { Guild, EventEmitter } from './structures';
+import { Guild, EventEmitter, ClientEventSignal } from './structures';
+import * as Events from './events';
 
 class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientEvents]> {
   private token: string;
+  public static events: Set<typeof ClientEventSignal> = new Set();
   public channels: ChannelCache = new ChannelCache(this);
   public guilds: GuildCache = new GuildCache(this);
 
@@ -33,7 +35,7 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
     // In scripting api we dont have websockets, so we cant possibly do some events, like, message, and others.
     this.sendAuthenticatedRequest(`${Routes.Applications}/@me`, 'Get').then(async (response) => {
       if (response.status != 200) throw new Error(`Failed to authenticate with Discord API: ${response.status}`);
-      this.emit(new ClientReadyEventSignal(this, this.token));
+      /* this.emit(new Events.ClientReadyEventSignal(this, this.token)); */
       await this.guilds.fetch();
 
       for (const cached of this.guilds) {
@@ -41,7 +43,12 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
         await guild.fetchChannels();
       }
 
-      system.runInterval(async () => {}, 20);
+      system.runInterval(async () => {
+        for (const event of Client.events) {
+          if (this.listeners.get(event.id)?.size == 0) continue;
+          event.tick(this);
+        }
+      }, 20);
       return;
     });
   }
@@ -58,6 +65,10 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
     this.emit(new ClientDebugEventSignal(`Code: ${response.status} Body: ${response.body.slice(0, 200).trim()}`));
     return response;
   }
+}
+
+for (const event of Object.values(Events)) {
+  Client.events.add(event as unknown as typeof ClientEventSignal);
 }
 
 export { Client };

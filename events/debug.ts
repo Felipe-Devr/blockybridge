@@ -2,7 +2,7 @@ import { ClientEvent } from '../types';
 import { ClientEventSignal } from '../structures/event';
 
 class ClientDebugEventSignal extends ClientEventSignal {
-  public readonly id: ClientEvent = ClientEvent.Debug;
+  public static readonly id: ClientEvent = ClientEvent.Debug;
 
   public readonly message: string;
 

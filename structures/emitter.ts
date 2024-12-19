@@ -2,7 +2,6 @@ import { ClientEventSignal } from '../structures';
 
 class EventEmitter<T, V extends ClientEventSignal> {
   protected listeners: Map<T, Set<(event: V) => void>> = new Map();
-  public readonly events: Set<V> = new Set();
 
   public on(event: T, listener: (event: V) => void): void {
     const listeners = this.listeners.get(event);
@@ -30,7 +29,8 @@ class EventEmitter<T, V extends ClientEventSignal> {
   }
 
   public emit(event: V): void {
-    const listeners = this.listeners.get(event.id as T);
+    const staticEvent = event.constructor as typeof ClientEventSignal;
+    const listeners = this.listeners.get(staticEvent.id as T);
 
     if (!listeners) return;
     for (const listener of listeners) {

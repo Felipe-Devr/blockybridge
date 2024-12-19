@@ -1,11 +1,11 @@
 import { Message } from '../builders';
 import { ClientEventSignal } from '../structures/event';
 import { ClientEvent } from '../types';
-import { BaseChannel, GuildMember } from '../structures';
-import { Client } from '../client';
+import { GuildMember } from '../structures';
+import type { Client } from '../client';
 
 class MessageCreateEventSignal extends ClientEventSignal {
-  public readonly id: ClientEvent = ClientEvent.MessageCreate;
+  public static readonly id: ClientEvent = ClientEvent.MessageCreate;
 
   public readonly guildId?: string;
 
@@ -22,8 +22,8 @@ class MessageCreateEventSignal extends ClientEventSignal {
     this.member = guildMember;
   }
 
-  public static async tick(client: Client, channels: Array<BaseChannel>) {
-    for (const channel of channels) {
+  public static async tick(client: Client) {
+    for (const channel of client.channels) {
       // If the channel is not text based, skip the channel
       if (!channel.isTextBased()) continue;
       // If the channel does not have a cached last message, then fetch the last message
