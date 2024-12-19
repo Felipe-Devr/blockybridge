@@ -1,5 +1,5 @@
-import { RGB } from '@minecraft/server';
 import { Author, Field, Footer, Image } from '../types';
+import { Color } from 'structures';
 
 class EmbedBuilder {
   private title: string;
@@ -31,12 +31,8 @@ class EmbedBuilder {
     return this;
   }
 
-  public setColor(color: RGB | number): this {
-    if (typeof color === 'number') {
-      this.color = color;
-      return this;
-    }
-    this.color = (color.red << 16) | (color.green << 8) | color.blue;
+  public setColor(color: Color | number): this {
+    this.color = color instanceof Color ? color.toInt() : color;
     return this;
   }
 

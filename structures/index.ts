@@ -6,3 +6,4 @@ export * from './emitter';
 export * from './member';
 export * from './poll-results';
 export * from './event';
+export * from './color';
