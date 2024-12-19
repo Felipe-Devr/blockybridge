@@ -19,6 +19,21 @@ interface RawMessageReference {
   fail_if_not_exists?: boolean;
 }
 
+interface RawRole {
+  id: string;
+  name: string;
+  color: number;
+  hoist: boolean;
+  icon?: string;
+  unicode_emoji?: string;
+  position: number;
+  permissions: string;
+  managed?: boolean;
+  mentionable?: boolean;
+  tags?: Array<string>;
+  flags: string;
+}
+
 interface PollAnswerCount {
   id: number;
   count: number;
@@ -57,6 +72,7 @@ interface RawChannel {
 interface RawGuild extends PartialGuild {
   owner_id: string;
   roles: Array<unknown>;
+  description?: string;
   verification_level: number;
   splash?: string;
   discovery_splash?: string;
@@ -121,4 +137,5 @@ export {
   PollResult,
   PollAnswerCount,
   PartialGuild,
+  RawRole,
 };

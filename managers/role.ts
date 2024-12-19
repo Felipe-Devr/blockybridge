@@ -1,18 +1,18 @@
+import { Role } from 'structures/role';
 import { Client } from '../client';
 import { GuildMember } from '../structures';
-import { Routes } from '../types';
+import { RawRole, Routes } from '../types';
 
 class RoleManager {
   private member: GuildMember;
   private client: Client;
 
-  // TODO: Map<string, GuildRole>
-  private roles: Set<string> = new Set();
+  private roles: Map<string, Role> = new Map();
 
   constructor(client: Client, member: GuildMember, roles?: Array<string>) {
     this.member = member;
     this.client = client;
-    this.roles = new Set(roles);
+    this.roles = new Map(roles.map((role) => [role, undefined]));
   }
 
   public async addRole(roleId: string): Promise<boolean> {
@@ -33,8 +33,20 @@ class RoleManager {
     return response.status === 204;
   }
 
-  public getRoles(): Array<string> {
-    return Array.from(this.roles);
+  public async fetch(roleId: string): Promise<Role> {
+    const cached = this.roles.get(roleId);
+
+    if (cached) return cached;
+    const response = await this.client.sendAuthenticatedRequest(
+      `${Routes.Guilds}/${this.member.guild.id}/roles/${roleId}`,
+      'Get',
+    );
+
+    const rawRole = JSON.parse(response.body) as RawRole;
+    const role = new Role(this.client, this.member.guild, rawRole);
+
+    this.roles.set(roleId, role);
+    return role;
   }
 }
 

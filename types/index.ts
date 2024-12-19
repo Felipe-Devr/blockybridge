@@ -6,3 +6,4 @@ export * from './options';
 export * from './channel';
 export * from './poll';
 export * from './message';
+export * from './role';
