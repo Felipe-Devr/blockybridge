@@ -4,22 +4,39 @@ import { Client } from '../client';
 import { RawMessage } from '../types';
 import { MessageReference, MessageReferenceType } from '../types/message';
 import { Poll } from './poll';
+import { User } from 'structures';
 
 class Message {
-  private content: string;
-  private channelId: string;
+  // ? The message content
+  public content: string;
+
+  //? The chanel id where the message was sent
+  public channelId: string;
+
+  // ? The message identifier
   public id: string;
-  private embeds: Array<EmbedBuilder> = [];
-  private poll?: Poll;
-  private reference?: MessageReference;
+
+  // ? The embed list of the message
+  public embeds: Array<EmbedBuilder> = [];
+
+  // ? The poll object of the message
+  public poll?: Poll;
+
+  // ? The Author user of the message
+  public author: User;
+
+  //? The message reference object of the message (Used for replies )
+  public reference?: MessageReference;
+
   private client: Client;
 
   public constructor(client: Client, data?: RawMessage) {
     this.client = client;
     if (!data) return;
-    const { id, channel_id, content, message_reference } = data;
+    const { id, channel_id, content, message_reference, author } = data;
 
     // TODO: Add more raw fields
+    this.author = new User(client, author);
     this.id = id;
     this.channelId = channel_id;
     this.content = content;
@@ -32,7 +49,7 @@ class Message {
           guildId: message_reference.guild_id,
         }
       : undefined;
-    this.poll = data.poll ? new Poll(this.client, this.channelId, data) : undefined;
+    this.poll = data.poll ? new Poll(this.client, data) : undefined;
   }
 
   public setContent(content: string): this {

@@ -4,6 +4,7 @@ import { PollMedia } from './poll';
 
 interface RawMessage {
   id: string;
+  author: RawUser;
   content: string;
   channel_id: string;
   embeds?: Array<object>;
@@ -17,6 +18,11 @@ interface RawMessageReference {
   channel_id?: string;
   guild_id?: string;
   fail_if_not_exists?: boolean;
+}
+
+interface RawApp {
+  id: string;
+  bot: RawUser;
 }
 
 interface RawRole {
@@ -138,4 +144,5 @@ export {
   PollAnswerCount,
   PartialGuild,
   RawRole,
+  RawApp,
 };
