@@ -11,6 +11,10 @@ class PollResults {
     return this._results.get(answerId)?.count;
   }
 
+  public getResults(answerId: number): PollAnswerCount | undefined {
+    return this._results.get(answerId);
+  }
+
   public get totalVotes(): number {
     return Array.from(this._results.values()).reduce((sum, result) => sum + result.count, 0);
   }

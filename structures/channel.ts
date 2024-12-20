@@ -1,4 +1,4 @@
-import { Message, Poll } from '../builders';
+import { Message } from '../builders';
 import { MessageCache } from '../caching';
 import { Client } from '../client';
 import { RawChannel, RawMessage, Routes } from '../types';
@@ -49,11 +49,14 @@ class BaseTextChannel extends BaseChannel {
     }
   }
 
-  public async send(message: Message | string | Poll): Promise<Message> {
+  /**
+   * Sends a message to the text channel
+   * @param message The message to send in the channel. For Polls use Poll.send
+   * @returns
+   */
+  public async send(message: Message | string): Promise<Message> {
     if (typeof message === 'string') {
       message = new Message(this.client).setContent(message);
-    } else if (message instanceof Poll) {
-      message = new Message(this.client).addPoll(message);
     }
 
     const response = await this.client.sendAuthenticatedRequest(
@@ -63,10 +66,14 @@ class BaseTextChannel extends BaseChannel {
     );
 
     if (response.status != 200) throw new Error('Failed to send message');
-    message = new Message(this.client, JSON.parse(response.body));
-    this.messages.setMessage(message.id, message);
+    const newMessage = new Message(this.client, JSON.parse(response.body));
 
-    return message;
+    message.channelId = newMessage.channelId;
+    message.id = newMessage.id;
+
+    this.messages.setMessage(newMessage.id, newMessage);
+
+    return newMessage;
   }
 
   public async fetchLastMessage(save: boolean = true): Promise<Message> {

@@ -1,25 +1,42 @@
 import { Client } from '../client';
-import { PollResults, User } from '../structures';
+import { BaseTextChannel, PollResults, User } from '../structures';
 import { PollAnswer, PollFetchOptions, PollMedia, RawMessage, RawUser, Routes } from '../types';
+import { Message } from './message';
 
-// TODO: Add a more clean results way
 class Poll {
   private client: Client;
-  private channel: string;
+
+  // ? The channel where the poll was sent
+  private channelId: string;
+
+  // ? The poll identifier
   public id: string;
+
+  // ? The poll title
   public title: PollMedia;
-  public options: PollAnswer[] = [];
+
+  // ? The poll options
+  public options: Array<PollAnswer> = [];
+
+  //? The poll duration in hours
   public duration: number = 24;
+
+  // ? Wether or not the poll allowsMultiSelection
   public allowMultiSelection: boolean = false;
+
+  // ? The expiry date of the poll
   public expiry?: Date;
 
-  public constructor(client: Client, channel: string, data?: RawMessage) {
+  public constructor(client: Client, data?: RawMessage) {
     this.client = client;
 
     if (!data) return;
-    const { question, answers, duration, allow_multiselect, layout_type: _, expiry } = data.poll;
+    const {
+      channel_id: channelId,
+      poll: { question, answers, duration, allow_multiselect, layout_type: _, expiry },
+    } = data;
+    this.channelId = channelId;
     this.id = data.id;
-    this.channel = channel;
     this.title = question;
     this.options = answers.map((answer) => ({
       answerId: answer.answer_id,
@@ -30,9 +47,18 @@ class Poll {
     this.expiry = expiry ? new Date(expiry) : undefined;
   }
 
+  public async send(channel: BaseTextChannel): Promise<Poll> {
+    const response = await channel.send(new Message(this.client).addPoll(this));
+    return response.getPoll()!;
+  }
+
+  /**
+   * Ends the poll and retrieves the poll results
+   * @returns The poll results
+   */
   public async end(): Promise<PollResults> {
     const response = await this.client.sendAuthenticatedRequest(
-      `${Routes.Channels}/${this.channel}/polls/${this.id}/expire`,
+      `${Routes.Channels}/${this.channelId}/polls/${this.id}/expire`,
       'Post',
     );
 
@@ -43,9 +69,15 @@ class Poll {
     return new PollResults(rawPoll.results.answer_counts);
   }
 
+  /**
+   * Retrieves the list of users that selected the specified answer
+   * @param answerId The answer id to retrieve the results
+   * @param options The options to fetch the results
+   * @returns The Users that selected the answer
+   */
   public async fetchVotes(answerId: number, options?: PollFetchOptions): Promise<Array<User>> {
     const response = await this.client.sendAuthenticatedRequest(
-      `${Routes.Channels}/${this.channel}/polls/${this.id}/answers/${answerId}`,
+      `${Routes.Channels}/${this.channelId}/polls/${this.id}/answers/${answerId}`,
       'Get',
       options ? JSON.stringify(options) : undefined,
     );
@@ -57,6 +89,11 @@ class Poll {
     return users;
   }
 
+  /**
+   * Modifies the poll title
+   * @param question The poll question (title)
+   * @returns The poll
+   */
   public setQuestion(question: string): this {
     this.title = {
       text: question,
@@ -64,6 +101,11 @@ class Poll {
     return this;
   }
 
+  /**
+   * Adds a new option to the poll
+   * @param option The option to be added
+   * @returns The poll
+   */
   public addOption(option: PollAnswer): this {
     this.options.push({
       answerId: this.options.length,
@@ -72,11 +114,25 @@ class Poll {
     return this;
   }
 
+  public getOption(answerId: number): PollAnswer | undefined {
+    return this.options.find((option) => option.answerId === answerId);
+  }
+
+  /**
+   * Modifies if the poll allows multiple answers
+   * @param allow Wether or not the poll allows multiple answer selection
+   * @returns
+   */
   public setAllowMultiSelection(allow: boolean): this {
     this.allowMultiSelection = allow;
     return this;
   }
 
+  /**
+   * Modifies the poll duration
+   * @param duration The duration of the poll in hours
+   * @returns The poll
+   */
   public setDuration(duration: number): this {
     this.duration = Math.min(duration, 24 * 32);
     return this;
