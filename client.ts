@@ -2,16 +2,26 @@ import { http, HttpHeader, HttpRequest, HttpRequestMethod, HttpResponse } from '
 import { ChannelCache } from './caching';
 import { GuildCache } from './caching/guilds';
 import { ClientDebugEventSignal } from './events';
-import { Routes, ClientEvents } from './types';
+import { Routes, ClientEvents, RawApp } from './types';
 import { system } from '@minecraft/server';
-import { Guild, EventEmitter, ClientEventSignal } from './structures';
+import { Guild, EventEmitter, ClientEventSignal, User } from './structures';
 import * as Events from './events';
 
 class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientEvents]> {
+  // ? The client secret token
   private token: string;
+
+  // ? The client event registry
   public static events: Set<typeof ClientEventSignal> = new Set();
+
+  // ? The client channel cache
   public channels: ChannelCache = new ChannelCache(this);
+
+  //? The client guild cache
   public guilds: GuildCache = new GuildCache(this);
+
+  // ? The client discord user
+  public user: User;
 
   public constructor() {
     super();
@@ -35,7 +45,10 @@ class Client extends EventEmitter<keyof ClientEvents, ClientEvents[keyof ClientE
     // In scripting api we dont have websockets, so we cant possibly do some events, like, message, and others.
     this.sendAuthenticatedRequest(`${Routes.Applications}/@me`, 'Get').then(async (response) => {
       if (response.status != 200) throw new Error(`Failed to authenticate with Discord API: ${response.status}`);
-      /* this.emit(new Events.ClientReadyEventSignal(this, this.token)); */
+      const rawApp = JSON.parse(response.body) as RawApp;
+      this.user = new User(this, rawApp.bot);
+
+      this.emit(new Events.ClientReadyEventSignal(this, this.token));
       await this.guilds.fetch();
 
       for (const cached of this.guilds) {
