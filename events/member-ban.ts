@@ -3,6 +3,7 @@ import { ClientEventSignal } from '../structures/event';
 import { ClientEvent } from '../types';
 import type { Client } from '../client';
 
+// TODO
 class GuildBanAddEventSignal extends ClientEventSignal {
   public static readonly id: ClientEvent;
 
@@ -16,7 +17,7 @@ class GuildBanAddEventSignal extends ClientEventSignal {
     this.reason = reason;
   }
 
-  public static async tick(client: Client) {
+  public static async tick(_client: Client) {
     for (const _guild of []) {
       // TODO: Fetch guild bans and compare them against the cached list
     }

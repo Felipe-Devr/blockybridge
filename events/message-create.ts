@@ -35,7 +35,7 @@ class MessageCreateEventSignal extends ClientEventSignal {
       const lastMessage = await channel.fetchLastMessage(false);
 
       // If the fetched message is the same as the cached last message or the last message is a reply, skip it.
-      if (lastMessage.id == channel.lastMessage.id || lastMessage.isReply()) continue;
+      if (lastMessage.id == channel.lastMessage.id || lastMessage.isReply() || lastMessage.author.id == client.user.id) continue;
       // Cache the new last message
       channel.lastMessage = lastMessage;
 
